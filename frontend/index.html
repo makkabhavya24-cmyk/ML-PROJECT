@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>YieldCast AI | Crop Yield Forecasting</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f8f1;
+            color: #1d2b20;
+        }
+
+        /* NAVBAR */
+        nav {
+            height: 75px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 7%;
+            background: rgba(255,255,255,0.95);
+            border-bottom: 1px solid #e1e8dc;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2f6b3b;
+        }
+
+        .logo span {
+            color: #89a66a;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #334238;
+            font-size: 15px;
+        }
+
+        .nav-links a:hover {
+            color: #2f6b3b;
+        }
+
+        .nav-btn {
+            background: #2f6b3b;
+            color: white !important;
+            padding: 11px 20px;
+            border-radius: 25px;
+        }
+
+        /* HERO */
+        .hero {
+            min-height: calc(100vh - 75px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 60px 7%;
+            gap: 50px;
+        }
+
+        .hero-text {
+            max-width: 650px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 9px 16px;
+            background: #e4efdf;
+            color: #37663d;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 22px;
+        }
+
+        .hero h1 {
+            font-size: 58px;
+            line-height: 1.08;
+            margin-bottom: 22px;
+            color: #1d3323;
+        }
+
+        .hero h1 span {
+            color: #4e874d;
+        }
+
+        .hero p {
+            font-size: 18px;
+            line-height: 1.7;
+            color: #667267;
+            margin-bottom: 32px;
+            max-width: 580px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .primary-btn {
+            display: inline-block;
+            text-decoration: none;
+            background: #2f6b3b;
+            color: white;
+            padding: 15px 28px;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .primary-btn:hover {
+            background: #24552f;
+            transform: translateY(-2px);
+        }
+
+        .secondary-btn {
+            display: inline-block;
+            text-decoration: none;
+            color: #2f6b3b;
+            border: 1px solid #9eb39c;
+            padding: 15px 28px;
+            border-radius: 30px;
+            font-weight: bold;
+        }
+
+        /* VISUAL CARD */
+        .hero-card {
+            width: 410px;
+            min-width: 350px;
+            background: white;
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(47,107,59,0.12);
+            border: 1px solid #e1e8dc;
+        }
+
+        .plant-icon {
+            width: 75px;
+            height: 75px;
+            border-radius: 22px;
+            background: #e5f0df;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin-bottom: 22px;
+        }
+
+        .hero-card h2 {
+            margin-bottom: 8px;
+        }
+
+        .hero-card p {
+            color: #758078;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .stat {
+            background: #f5f8f1;
+            padding: 18px;
+            border-radius: 16px;
+        }
+
+        .stat strong {
+            display: block;
+            font-size: 22px;
+            color: #2f6b3b;
+            margin-bottom: 5px;
+        }
+
+        .stat span {
+            font-size: 12px;
+            color: #707b72;
+        }
+
+        /* FEATURES */
+        .features {
+            padding: 80px 7%;
+            background: white;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 45px;
+        }
+
+        .section-title h2 {
+            font-size: 35px;
+            margin-bottom: 10px;
+        }
+
+        .section-title p {
+            color: #6d776f;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .feature {
+            padding: 30px;
+            border: 1px solid #e3e9df;
+            border-radius: 20px;
+            background: #fbfcfa;
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 18px;
+        }
+
+        .feature h3 {
+            margin-bottom: 10px;
+        }
+
+        .feature p {
+            color: #69746c;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        /* FOOTER */
+        footer {
+            background: #1d3323;
+            color: white;
+            text-align: center;
+            padding: 25px;
+            font-size: 14px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 900px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .hero-card {
+                width: 100%;
+                max-width: 410px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-links {
+                gap: 12px;
+            }
+
+            .hero h1 {
+                font-size: 42px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVIGATION -->
+    <nav>
+        <div class="logo">🌾 Yield<span>Cast AI</span></div>
+
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="predict.html">Predict</a>
+            <a href="insights.html">Insights</a>
+            <a href="model.html">Model</a>
+            <a href="predict.html" class="nav-btn">Start Prediction</a>
+        </div>
+    </nav>
+
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+
+        <div class="hero-text">
+
+            <div class="tag">
+                ✦ AI-POWERED AGRICULTURE
+            </div>
+
+            <h1>
+                Smarter Crop
+                <span>Yield Forecasting</span>
+            </h1>
+
+            <p>
+                Predict agricultural crop yield using weather,
+                soil and farming data with a Gradient Boosting
+                Machine Learning model optimized through
+                Bayesian Hyperparameter Search.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="predict.html" class="primary-btn">
+                    🌱 Predict Yield
+                </a>
+
+                <a href="model.html" class="secondary-btn">
+                    Explore Model
+                </a>
+            </div>
+
+        </div>
+
+
+        <!-- HERO CARD -->
+        <div class="hero-card">
+
+            <div class="plant-icon">
+                🌾
+            </div>
+
+            <h2>Intelligent Yield Prediction</h2>
+
+            <p>
+                Our system combines environmental,
+                soil and agricultural features to
+                generate crop yield predictions.
+            </p>
+
+            <div class="stats">
+
+                <div class="stat">
+                    <strong>GBR</strong>
+                    <span>Prediction Model</span>
+                </div>
+
+                <div class="stat">
+                    <strong>Optuna</strong>
+                    <span>Optimization</span>
+                </div>
+
+                <div class="stat">
+                    <strong>13</strong>
+                    <span>Input Features</span>
+                </div>
+
+                <div class="stat">
+                    <strong>AI</strong>
+                    <span>Data Driven</span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- FEATURES -->
+    <section class="features">
+
+        <div class="section-title">
+
+            <h2>How Our System Works</h2>
+
+            <p>
+                From agricultural data to intelligent yield predictions.
+            </p>
+
+        </div>
+
+
+        <div class="feature-grid">
+
+            <div class="feature">
+
+                <div class="feature-icon">🌦️</div>
+
+                <h3>Weather Analysis</h3>
+
+                <p>
+                    Uses temperature, rainfall and humidity
+                    information as environmental inputs.
+                </p>
+
+            </div>
+
+
+            <div class="feature">
+
+                <div class="feature-icon">🌱</div>
+
+                <h3>Soil & Farming Data</h3>
+
+                <p>
+                    Incorporates soil nutrients, pH,
+                    fertilizer and pesticide information.
+                </p>
+
+            </div>
+
+
+            <div class="feature">
+
+                <div class="feature-icon">🧠</div>
+
+                <h3>Machine Learning</h3>
+
+                <p>
+                    Uses Gradient Boosting with Bayesian
+                    hyperparameter optimization to generate predictions.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- FOOTER -->
+    <footer>
+
+        © 2026 YieldCast AI · Rainfall-Based Crop Yield Forecasting
+
+    </footer>
+
+</body>
+</html>

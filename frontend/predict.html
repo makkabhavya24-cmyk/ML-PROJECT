@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Rainfall-Based Crop Yield Prediction</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #f5f1e8, #e8f0e5);
+            min-height: 100vh;
+            padding: 30px 15px;
+            color: #26352a;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #254b35;
+        }
+
+        .header p {
+            color: #66736a;
+            font-size: 15px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 18px;
+            padding: 32px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: #315d42;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e4e8e4;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px 22px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 7px;
+            color: #37443b;
+            font-size: 14px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px 13px;
+            border: 1px solid #ccd5ce;
+            border-radius: 9px;
+            font-size: 15px;
+            outline: none;
+            background: #fbfcfb;
+            color: #26352a;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #5c8d69;
+            box-shadow: 0 0 0 3px rgba(92, 141, 105, 0.12);
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #7a857d;
+            margin-top: 5px;
+        }
+
+        .button-container {
+            margin-top: 28px;
+            text-align: center;
+        }
+
+        button {
+            border: none;
+            background: #315d42;
+            color: white;
+            padding: 14px 35px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #254b35;
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            background: #9ba99f;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            display: none;
+            margin-top: 25px;
+            padding: 22px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .result.success {
+            display: block;
+            background: #edf7ef;
+            border: 1px solid #c9e2ce;
+        }
+
+        .result.error {
+            display: block;
+            background: #fff0f0;
+            border: 1px solid #e5c5c5;
+        }
+
+        .result h2 {
+            margin-bottom: 8px;
+            color: #315d42;
+        }
+
+        .result.error h2 {
+            color: #a33a3a;
+        }
+
+        .prediction-value {
+            font-size: 34px;
+            font-weight: bold;
+            color: #254b35;
+            margin: 8px 0;
+        }
+
+        .prediction-unit {
+            color: #66736a;
+            font-size: 14px;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 15px;
+            color: #66736a;
+            text-align: center;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 22px;
+            font-size: 13px;
+            color: #7a857d;
+        }
+
+        @media (max-width: 700px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 22px;
+            }
+
+            .header h1 {
+                font-size: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+
+        <h1>🌾 Rainfall-Based Crop Yield Prediction</h1>
+
+        <p>
+            Predict crop yield using weather, rainfall, soil and agricultural data
+        </p>
+
+    </div>
+
+
+    <!-- FORM CARD -->
+    <div class="card">
+
+        <div class="section-title">
+            Enter Crop & Environmental Details
+        </div>
+
+
+        <form id="predictionForm">
+
+            <div class="form-grid">
+
+                <!-- YEAR -->
+                <div class="form-group">
+
+                    <label for="year">
+                        Year
+                    </label>
+
+                    <input
+                        type="number"
+                        id="year"
+                        min="1997"
+                        max="2026"
+                        value="2026"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- STATE -->
+                <div class="form-group">
+
+                    <label for="state">
+                        State
+                    </label>
+
+                    <select id="state" required>
+
+                        <option value="">
+                            Loading states...
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- CROP -->
+                <div class="form-group">
+
+                    <label for="crop">
+                        Crop
+                    </label>
+
+                    <select id="crop" required>
+
+                        <option value="">
+                            Loading crops...
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- SEASON -->
+                <div class="form-group">
+
+                    <label for="season">
+                        Season
+                    </label>
+
+                    <select id="season" required>
+
+                        <option value="">
+                            Loading seasons...
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- AREA -->
+                <div class="form-group">
+
+                    <label for="area">
+                        Cultivated Area
+                    </label>
+
+                    <input
+                        type="number"
+                        id="area"
+                        step="0.01"
+                        min="0"
+                        placeholder="Example: 1000"
+                        required
+                    >
+
+                    <span class="hint">
+                        Agricultural area used for cultivation
+                    </span>
+
+                </div>
+
+
+                <!-- TEMPERATURE -->
+                <div class="form-group">
+
+                    <label for="temperature">
+                        Average Temperature (°C)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="temperature"
+                        step="0.01"
+                        placeholder="Example: 28"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- RAINFALL -->
+                <div class="form-group">
+
+                    <label for="annual_rainfall">
+                        Annual Rainfall (mm)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="annual_rainfall"
+                        step="0.01"
+                        min="0"
+                        placeholder="Example: 900"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- HUMIDITY -->
+                <div class="form-group">
+
+                    <label for="humidity">
+                        Average Humidity (%)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="humidity"
+                        step="0.01"
+                        min="0"
+                        max="100"
+                        placeholder="Example: 70"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- NITROGEN -->
+                <div class="form-group">
+
+                    <label for="N">
+                        Nitrogen (N)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="N"
+                        step="0.01"
+                        min="0"
+                        placeholder="Example: 80"
+                        required
+                    >
+
+                    <span class="hint">
+                        Soil nitrogen value
+                    </span>
+
+                </div>
+
+
+                <!-- PHOSPHORUS -->
+                <div class="form-group">
+
+                    <label for="P">
+                        Phosphorus (P)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="P"
+                        step="0.01"
+                        min="0"
+                        placeholder="Example: 40"
+                        required
+                    >
+
+                    <span class="hint">
+                        Soil phosphorus value
+                    </span>
+
+                </div>
+
+
+                <!-- POTASSIUM -->
+                <div class="form-group">
+
+                    <label for="K">
+                        Potassium (K)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="K"
+                        step="0.01"
+                        min="0"
+                        placeholder="Example: 40"
+                        required
+                    >
+
+                    <span class="hint">
+                        Soil potassium value
+                    </span>
+
+                </div>
+
+
+                <!-- PH -->
+                <div class="form-group">
+
+                    <label for="pH">
+                        Soil pH
+                    </label>
+
+                    <input
+                        type="number"
+                        id="pH"
+                        step="0.01"
+                        min="0"
+                        max="14"
+                        placeholder="Example: 6.5"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- FERTILIZER -->
+                <div class="form-group">
+
+                    <label for="fertilizer">
+                        Fertilizer
+                    </label>
+
+                    <input
+                        type="number"
+                        id="fertilizer"
+                        step="0.01"
+                        min="0"
+                        placeholder="Example: 100000"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- PESTICIDE -->
+                <div class="form-group">
+
+                    <label for="pesticide">
+                        Pesticide
+                    </label>
+
+                    <input
+                        type="number"
+                        id="pesticide"
+                        step="0.01"
+                        min="0"
+                        placeholder="Example: 500"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <!-- BUTTON -->
+            <div class="button-container">
+
+                <button
+                    type="submit"
+                    id="predictButton"
+                >
+                    Predict Crop Yield
+                </button>
+
+            </div>
+
+        </form>
+
+
+        <!-- LOADING -->
+        <div
+            class="loading"
+            id="loading"
+        >
+            ⏳ Predicting crop yield...
+        </div>
+
+
+        <!-- RESULT -->
+        <div
+            class="result"
+            id="result"
+        >
+
+            <h2 id="resultTitle">
+                Prediction Result
+            </h2>
+
+            <div
+                class="prediction-value"
+                id="predictionValue"
+            >
+                --
+            </div>
+
+            <div
+                class="prediction-unit"
+                id="predictionUnit"
+            >
+                --
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="footer">
+
+        Rainfall-Based Crop Yield Prediction System
+
+    </div>
+
+</div>
+
+
+<script>
+
+const API_URL = "http://127.0.0.1:8000";
+
+
+// ==================================================
+// REMOVE DUPLICATES
+// ==================================================
+
+function uniqueValues(values) {
+
+    const result = [];
+    const seen = new Set();
+
+    values.forEach(function(value) {
+
+        const cleanValue = String(value).trim();
+
+        if (!seen.has(cleanValue)) {
+
+            seen.add(cleanValue);
+
+            result.push(cleanValue);
+
+        }
+
+    });
+
+    return result;
+}
+
+
+// ==================================================
+// LOAD OPTIONS
+// ==================================================
+
+async function loadOptions() {
+
+    try {
+
+        const response =
+            await fetch(API_URL + "/options");
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Failed to load options"
+            );
+
+        }
+
+        const data =
+            await response.json();
+
+
+        // ==================================================
+        // STATE
+        // ==================================================
+
+        const stateSelect =
+            document.getElementById("state");
+
+        stateSelect.innerHTML =
+            '<option value="">Select State</option>';
+
+
+        const states =
+            uniqueValues(data.states);
+
+
+        states.forEach(function(state) {
+
+            const option =
+                document.createElement("option");
+
+            option.value = state;
+
+            option.textContent = state;
+
+            stateSelect.appendChild(option);
+
+        });
+
+
+        // ==================================================
+        // CROP
+        // ==================================================
+
+        const cropSelect =
+            document.getElementById("crop");
+
+        cropSelect.innerHTML =
+            '<option value="">Select Crop</option>';
+
+
+        const crops =
+            uniqueValues(data.crops);
+
+
+        crops.forEach(function(crop) {
+
+            const option =
+                document.createElement("option");
+
+            option.value = crop;
+
+            option.textContent = crop;
+
+            cropSelect.appendChild(option);
+
+        });
+
+
+        // ==================================================
+        // SEASON
+        // ==================================================
+
+        const seasonSelect =
+            document.getElementById("season");
+
+        seasonSelect.innerHTML =
+            '<option value="">Select Season</option>';
+
+
+        const seasons =
+            uniqueValues(data.seasons);
+
+
+        seasons.forEach(function(season) {
+
+            const option =
+                document.createElement("option");
+
+            option.value = season;
+
+            option.textContent = season;
+
+            seasonSelect.appendChild(option);
+
+        });
+
+
+        console.log(
+            "Unique states:",
+            states.length
+        );
+
+        console.log(
+            "Unique crops:",
+            crops.length
+        );
+
+        console.log(
+            "Unique seasons:",
+            seasons.length
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Options error:",
+            error
+        );
+
+        alert(
+            "Could not connect to the prediction server."
+        );
+
+    }
+
+}
+
+
+// ==================================================
+// PREDICT
+// ==================================================
+
+document
+    .getElementById("predictionForm")
+    .addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const button =
+                document.getElementById(
+                    "predictButton"
+                );
+
+
+            const loading =
+                document.getElementById(
+                    "loading"
+                );
+
+
+            const result =
+                document.getElementById(
+                    "result"
+                );
+
+
+            const resultTitle =
+                document.getElementById(
+                    "resultTitle"
+                );
+
+
+            const predictionValue =
+                document.getElementById(
+                    "predictionValue"
+                );
+
+
+            const predictionUnit =
+                document.getElementById(
+                    "predictionUnit"
+                );
+
+
+            // ==================================================
+            // FORM DATA
+            // ==================================================
+
+            const requestData = {
+
+                year:
+                    parseInt(
+                        document.getElementById(
+                            "year"
+                        ).value
+                    ),
+
+                state:
+                    document.getElementById(
+                        "state"
+                    ).value,
+
+                crop:
+                    document.getElementById(
+                        "crop"
+                    ).value,
+
+                season:
+                    document.getElementById(
+                        "season"
+                    ).value,
+
+                area:
+                    parseFloat(
+                        document.getElementById(
+                            "area"
+                        ).value
+                    ),
+
+                temperature:
+                    parseFloat(
+                        document.getElementById(
+                            "temperature"
+                        ).value
+                    ),
+
+                annual_rainfall:
+                    parseFloat(
+                        document.getElementById(
+                            "annual_rainfall"
+                        ).value
+                    ),
+
+                humidity:
+                    parseFloat(
+                        document.getElementById(
+                            "humidity"
+                        ).value
+                    ),
+
+                N:
+                    parseFloat(
+                        document.getElementById(
+                            "N"
+                        ).value
+                    ),
+
+                P:
+                    parseFloat(
+                        document.getElementById(
+                            "P"
+                        ).value
+                    ),
+
+                K:
+                    parseFloat(
+                        document.getElementById(
+                            "K"
+                        ).value
+                    ),
+
+                pH:
+                    parseFloat(
+                        document.getElementById(
+                            "pH"
+                        ).value
+                    ),
+
+                fertilizer:
+                    parseFloat(
+                        document.getElementById(
+                            "fertilizer"
+                        ).value
+                    ),
+
+                pesticide:
+                    parseFloat(
+                        document.getElementById(
+                            "pesticide"
+                        ).value
+                    )
+
+            };
+
+
+            // ==================================================
+            // LOADING
+            // ==================================================
+
+            button.disabled = true;
+
+            button.textContent =
+                "Predicting...";
+
+            loading.style.display =
+                "block";
+
+            result.style.display =
+                "none";
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        API_URL + "/predict",
+                        {
+
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    requestData
+                                )
+
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                // ==================================================
+                // SUCCESS
+                // ==================================================
+
+                if (
+                    response.ok &&
+                    data.status === "success"
+                ) {
+
+                    result.className =
+                        "result success";
+
+                    result.style.display =
+                        "block";
+
+
+                    resultTitle.textContent =
+                        "🌾 Predicted Crop Yield";
+
+
+                    const yieldValue = Number(data.predicted_yield);
+
+predictionValue.textContent =
+    yieldValue.toFixed(2) + " t/ha";
+
+predictionUnit.textContent =
+    "≈ " + (yieldValue * 1000).toFixed(0) + " kg/ha";
+
+                }
+
+                else {
+
+                    result.className =
+                        "result error";
+
+                    result.style.display =
+                        "block";
+
+
+                    resultTitle.textContent =
+                        "Prediction Error";
+
+
+                    predictionValue.textContent =
+                        "";
+
+
+                    predictionUnit.textContent =
+                        data.message ||
+                        "Unable to make prediction.";
+
+                }
+
+            }
+
+            catch (error) {
+
+                console.error(error);
+
+
+                result.className =
+                    "result error";
+
+                result.style.display =
+                    "block";
+
+
+                resultTitle.textContent =
+                    "Connection Error";
+
+
+                predictionValue.textContent =
+                    "";
+
+
+                predictionUnit.textContent =
+                    "Make sure the FastAPI server is running.";
+
+            }
+
+
+            button.disabled = false;
+
+            button.textContent =
+                "Predict Crop Yield";
+
+            loading.style.display =
+                "none";
+
+        }
+    );
+
+
+// ==================================================
+// START
+// ==================================================
+
+loadOptions();
+
+</script>
+
+</body>
+
+</html>
